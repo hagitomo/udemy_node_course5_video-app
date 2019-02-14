@@ -3,22 +3,22 @@
     <div class="card card-body">
       <img src="/img/logo.png" alt="" class="logo">
       <h3 class="text-center">Account register</h3>
-      <form action="">
+      <form action="/users/register/" method="POST">
         <div class="form-group">
           <label for="name">Name</label>
-          <input type="text" name="name" id="" required>
+          <input type="text" name="name" value="{{name}}" required>
         </div>
          <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" name="email" id="" required>
+          <input type="email" name="email" value="{{email}}" required>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" name="password" id="" required>
+          <input type="password" name="password" value="{{password}}" required>
         </div>
         <div class="form-group">
           <label for="password2">Confirm Password</label>
-          <input type="password" name="password2" id="" required>
+          <input type="password" name="password2" value="{{password2}}" required>
         </div>
         <button type="submit" class="btn btn-primary">submit</button>
       </form>
