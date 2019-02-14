@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 const exphbs = require('express-handlebars')
 const methodOverride = require('method-override')
 const flash = require('connect-flash')
@@ -16,6 +17,9 @@ app.set('view engine', 'handlebars')
 // body-parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+// static folder
+app.use(express.static(path.join(__dirname, 'public')))
 
 // method override
 app.use(methodOverride('_method'))
@@ -51,9 +55,11 @@ mongoose.connect('mongodb://localhost:27017/video-app', {
 const index = require('./router/index.js')
 const about = require('./router/about.js')
 const ideas = require('./router/ideas.js')
+const users = require('./router/users.js')
 app.use('/', index)
-app.use('/about', about)
-app.use('/ideas', ideas)
+app.use('/about/', about)
+app.use('/ideas/', ideas)
+app.use('/users/', users)
 
 // server
 const port = 5000
