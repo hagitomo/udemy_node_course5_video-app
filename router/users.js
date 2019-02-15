@@ -1,6 +1,10 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 const router = express.Router()
+
+require('../models/Users.js')
+const User = mongoose.model('users')
 
 // login
 router.get('/login/', (req, res) => {
@@ -32,9 +36,35 @@ router.post('/register/', (req, res) => {
       password2: req.body.password2
     })
   } else {
-    res.send('pass')
+    // emailがすでに登録されていないか
+    User.findOne({email: req.body.email})
+      .then( user => {
+        if (user) {
+          req.flash('error_msg', 'Email already registered')
+          res.redirect('/users/register/')
+        } else {
+          const newUser = new User ({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password
+          })
+          bcrypt.genSalt(10, ( err, salt ) => {
+            bcrypt.hash(newUser.password, salt, (err, hash) => {
+              if (err) throw errors
+              newUser.password = hash
+              newUser.save()
+                .then( user => {
+                  req.flash('succes_msg', 'you are registered')
+                  res.redirect('/users/login')
+                })
+                .catch((err) => {
+                  req.flash('error_msg', 'sorry, something wrong, try again')
+                })
+            })
+          })
+        }
+      })
   }
-
 })
 
 module.exports = router
