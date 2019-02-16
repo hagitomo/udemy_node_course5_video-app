@@ -9,7 +9,7 @@ const Idea = mongoose.model('ideas')
 
 // get '/ideas/'
 router.get('/', ensureAuthenticated, (req, res) => {
-  Idea.find({})
+  Idea.find({ user: req.user.id })
     .sort({ date: 'desc' })
     .then( ideas => {
       res.render('ideas/index', { ideas })
@@ -39,7 +39,8 @@ router.post('/', ensureAuthenticated, (req, res) => {
     // mongodbに保存
     const newUser = {
       title: req.body.title,
-      details: req.body.details
+      details: req.body.details,
+      user: req.user.id
     }
     new Idea(newUser)
       .save()
@@ -64,7 +65,12 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
   .then( idea => {
-    res.render('ideas/edit', { idea })
+    if ( idea.user !== req.user.id ) {
+      req.flash('error_msg', 'not autholized')
+      res.redirect('/ideas/')
+    } else {
+      res.render('ideas/edit', { idea })
+    }
   })
 })
 
@@ -88,11 +94,25 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
 
 // delete '/ideas/id'
 router.delete('/:id', ensureAuthenticated, (req, res) => {
-  Idea.deleteOne({ _id: req.params.id })
-    .then(() => {
-      req.flash('success_msg', 'Video idea removed')
+  Idea.findOne({
+    _id: req.params.id
+  }).then( idea => {
+    if ( idea.user !== req.user.id ) {
+      req.flash('error_msg', 'not autholized')
       res.redirect('/ideas/')
-    })
+    } else {
+      Idea.deleteOne({ _id: req.params.id })
+      .then(() => {
+        req.flash('success_msg', 'Video idea removed')
+        res.redirect('/ideas/')
+      })
+    }
+  } )
+  // Idea.deleteOne({ _id: req.params.id, user: req.user.id  })
+  // .then(() => {
+  //   req.flash('success_msg', 'Video idea removed')
+  //   res.redirect('/ideas/')
+  // })
 })
 
 module.exports = router
