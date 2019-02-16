@@ -6,6 +6,7 @@ const flash = require('connect-flash')
 const session = require('express-session')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const passport = require('passport')
 const app = express()
 
 // template
@@ -24,22 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 // method override
 app.use(methodOverride('_method'))
 
-// session
-app.use(session({
-  secret: 'secret',
-  resave: true,
-  saveUninitialized: true
-}))
-
-// flash message
-app.use(flash())
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash('success_msg')
-  res.locals.error_msg = req.flash('error_msg')
-  res.locals.error = req.flash('error')
-  next()
-})
-
 // mongoose 接続
 mongoose.Promise = global.Promise
 mongoose.connect('mongodb://localhost:27017/video-app', {
@@ -49,6 +34,32 @@ mongoose.connect('mongodb://localhost:27017/video-app', {
   console.log('mongoDB Connected...')
 }).catch((err) => {
   console.log(err)
+})
+
+// session
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
+
+// passport
+app.use(passport.initialize())
+app.use(passport.session())
+
+// passport config
+require('./config/passport.js')(passport)
+
+// flash message
+app.use(flash())
+
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg')
+  res.locals.error_msg = req.flash('error_msg')
+  res.locals.error = req.flash('error')
+  // login判定
+  res.locals.user = req.user || null
+  next()
 })
 
 // routing
