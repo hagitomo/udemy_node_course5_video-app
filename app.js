@@ -25,9 +25,12 @@ app.use(express.static(path.join(__dirname, 'public')))
 // method override
 app.use(methodOverride('_method'))
 
+// db config
+const db = require('./config/db.js')
+
 // mongoose 接続
 mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost:27017/video-app', {
+mongoose.connect( db.mongoURI, {
   useNewUrlParser: true
 })
 .then(() => {
@@ -73,7 +76,7 @@ app.use('/ideas/', ideas)
 app.use('/users/', users)
 
 // server
-const port = 5000
+const port = process.env.PORT || 5000
 app.listen(port, () => {
   console.log(`Server started on port ${port}`)
 })
